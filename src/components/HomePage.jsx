@@ -1,79 +1,132 @@
 import React, { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import axios from "axios";
 
 const HomePage = () => {
-  const isAuthenticated = !!localStorage.getItem("authToken");
+  const [newUser, setNewUser] = useState({ name: "", email: "", msg: "" });
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
 
+  // Fetch users initially when the component loads
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-          console.error("No token found, redirecting to login");
-          return <Navigate to="/login" />;
-        }
-
-        const response = await fetch("https://user-auth-backend-beta.vercel.app/user", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 401) {
-          console.error("Token expired or invalid, redirecting to login");
-          localStorage.removeItem("authToken");
-          return <Navigate to="/login" />;
-        }
-
-        const data = await response.json();
-        setUsers(data);
+        const response = await axios.get("http://localhost:3000/users");
+        setUsers(response.data.allUser); // Assuming the data comes in 'allUser' field
       } catch (error) {
         console.error("Error fetching user data:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchUser();
-  }, []);
+    fetchUsers(); // Call the function to fetch users on mount
+  }, []); // The empty dependency array means this will run only once on mount
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
+  // Handle form input changes
+  const handleAddInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser((prevUser) => ({ ...prevUser, [name]: value }));
+  };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // Handle form submission
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    const { name, email, msg } = newUser;
+
+    try {
+      // Send the new user data to the backend
+      const response = await axios.post("http://localhost:3000/users/signin", {
+        name,
+        email,
+        msg,
+      });
+
+      alert("Successfully added");
+
+      // Option 1: Add the new user directly to the state (optimistic update)
+      setUsers([...users, response.data]);
+
+      // Option 2 (optional): Refetch all users from the backend to ensure full sync
+      const updatedUsers = await axios.get("http://localhost:3000/users");
+      setUsers(updatedUsers.data.allUser); // Update state with fresh data from server
+
+      // Reset the form
+      setNewUser({ name: "", email: "", msg: "" });
+    } catch (error) {
+      console.error(
+        "Error adding user:",
+        error.response ? error.response.data : error.message
+      );
+      alert("Failed to add the user");
+    }
+  };
 
   return (
-    <div
-      style={{
-        height: "80vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        margin: "auto",
-        marginTop: "30px",
-      }}
-    >
-      {users.length > 0 ? (
-        users.map((user) => (
-          <div key={user._id}>
-            <div className="username">Name: {user.name}</div>
-            <div className="email">Email: {user.email}</div>
-          </div>
-        ))
-      ) : (
-        <div>No users found</div>
-      )}
-      <img
-        src="woman_laptop.png"
-        alt="Woman using a laptop"
-        style={{ height: "100%", width: "100%" }}
-      />
+    <div className="mainCon">
+      <div className="left">
+        <div className="formContainer">
+          <form onSubmit={handleAddSubmit}>
+            <div className="data heading">Send Message</div>
+            <div className="data">
+              <div className="dataHeading">Name</div>
+              <input
+                type="text"
+                name="name"
+                value={newUser.name}
+                onChange={handleAddInputChange}
+                required
+              />
+            </div>
+            <div className="data">
+              <div className="dataHeading">Email</div>
+              <input
+                type="email"
+                name="email"
+                value={newUser.email}
+                onChange={handleAddInputChange}
+                required
+              />
+            </div>
+            <div className="data">
+              <div className="dataHeading">Message</div>
+              <input
+                type="text"
+                name="msg"
+                value={newUser.msg}
+                onChange={handleAddInputChange}
+                required
+              />
+            </div>
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+      </div>
+
+      <div className="right">
+        <div className="stories-div">
+          {users.map((user) => {
+            const { _id, name, email, msg } = user;
+            return (
+              <div key={_id} className="card">
+                <div className="card1">
+                  <div className="top">
+                    <h2 className="outData">
+                      <span className="outHead">Name: </span> {name}
+                    </h2>
+                    <p className="outData">
+                      <span className="outHead">Email: </span> {email}
+                    </p>
+                  </div>
+                  <div className="bottom">
+                    <p className="message">
+                      <span className="outHead">Message: </span>
+                      <div className="msg">{msg}</div>
+                    </p>
+                  </div>
+                </div>
+                <div className="hr"></div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

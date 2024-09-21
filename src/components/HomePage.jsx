@@ -5,34 +5,30 @@ const HomePage = () => {
   const [newUser, setNewUser] = useState({ name: "", email: "", msg: "" });
   const [users, setUsers] = useState([]);
 
-  // Fetch users initially when the component loads
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/users");
-        setUsers(response.data.allUser); // Assuming the data comes in 'allUser' field
+        const response = await axios.get("https://middleware-task-backend.vercel.app/users");
+        setUsers(response.data.allUser); 
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     };
 
-    fetchUsers(); // Call the function to fetch users on mount
-  }, []); // The empty dependency array means this will run only once on mount
+    fetchUsers(); 
+  }, []); 
 
-  // Handle form input changes
   const handleAddInputChange = (e) => {
     const { name, value } = e.target;
     setNewUser((prevUser) => ({ ...prevUser, [name]: value }));
   };
 
-  // Handle form submission
   const handleAddSubmit = async (e) => {
     e.preventDefault();
     const { name, email, msg } = newUser;
 
     try {
-      // Send the new user data to the backend
-      const response = await axios.post("http://localhost:3000/users/signin", {
+      const response = await axios.post("https://middleware-task-backend.vercel.app/users/signin", {
         name,
         email,
         msg,
@@ -40,14 +36,11 @@ const HomePage = () => {
 
       alert("Successfully added");
 
-      // Option 1: Add the new user directly to the state (optimistic update)
       setUsers([...users, response.data]);
 
-      // Option 2 (optional): Refetch all users from the backend to ensure full sync
-      const updatedUsers = await axios.get("http://localhost:3000/users");
-      setUsers(updatedUsers.data.allUser); // Update state with fresh data from server
+      const updatedUsers = await axios.get("https://middleware-task-backend.vercel.app/users");
+      setUsers(updatedUsers.data.allUser); 
 
-      // Reset the form
       setNewUser({ name: "", email: "", msg: "" });
     } catch (error) {
       console.error(

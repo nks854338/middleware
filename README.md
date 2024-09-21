@@ -1,8 +1,17 @@
-# React + Vite
+# Express.js Middleware Demo with CORS and Body-Parser
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+This project demonstrates how to use middleware in an Express.js application, specifically focusing on CORS (Cross-Origin Resource Sharing) and body-parser. It includes a frontend form that sends data to the backend, which uses CORS and body-parser to handle requests and responses.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Demo Links
+- **Frontend Demo**: [Click here](https://middleware-wheat-five.vercel.app/)
+- **Backend Demo**: [Click here](https://middleware-task-backend.vercel.app/)
+- **Frontend Repository Link**: [Click here](https://github.com/nks854338/middleware)
+- **Backend Repository Link**: [Click here](https://github.com/nks854338/middlewareTaskBackend)
+
+## Features
+- Backend using Express.js with CORS and body-parser middleware.
+- Frontend form that submits user data (name, email, and message) to the backend.
+- The backend logs the incoming request data and sends it back in the response.
+- Both the backend and frontend are deployed on Vercel.
